@@ -1,7 +1,7 @@
-flask
-flask-login
-flask-bcrypt
-flask-sqlalchemy
+Flask
+Flask-Login
+Flask-Bcrypt
+Flask-SQLAlchemy
 python-dotenv
-google-generativeai
-
+openai
+PyMySQL
