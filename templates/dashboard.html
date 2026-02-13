@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Email Writer</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <div class="topbar">
+        <div class="user">
+            <div class="status-circle"></div>
+
+            <span class="username">{{ user_name }}</span>
+
+
+        </div>
+
+        <h1 class="logo">MailBot AI</h1>
+
+        <a href="/logout" style="font-weight:600;text-decoration:none;color:black;">Log out</a>
+    </div>
+
+    <!-- Main Section -->
+    <div class="main">
+
+        <label>Enter Your Prompt</label>
+
+        <textarea id="prompt" placeholder="Describe your email..."></textarea>
+
+        <button class="btn1" style="width:220px" onclick="generate()">
+            Generate
+        </button>
+
+        <!-- Output Card -->
+         <!-- Output Card -->
+<div class="output" id="result">
+    Your Output
+</div>
+
+<div class="action-buttons">
+    <button class="btn small" onclick="copyEmail()">Copy</button>
+    <button class="btn small" onclick="generate()">Regenerate</button>
+    <button class="btn small" onclick="downloadPDF()">Download PDF</button>
+</div>
+
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        © Copyright 2026 AI Email Writer
+    </footer>
+
+    <script>
+let lastEmail = "";
+
+async function generate() {
+    let prompt = document.getElementById("prompt").value;
+    let resultBox = document.getElementById("result");
+
+    resultBox.textContent = "Generating email...";
+
+    let res = await fetch("/generate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            prompt: prompt,
+            tone: "formal"
+        })
+    });
+
+    let data = await res.json();
+    lastEmail = data.email;
+
+    typeText(data.email, resultBox);
+}
+
+function typeText(text, element) {
+    element.textContent = "";
+    let i = 0;
+
+    let speed = 15; // typing speed
+
+    function typing() {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+        }
+    }
+
+    typing();
+}
+
+function copyEmail() {
+    navigator.clipboard.writeText(lastEmail);
+    alert("Email copied!");
+}
+
+function downloadPDF() {
+    const element = document.createElement("div");
+    element.style.whiteSpace = "pre-wrap";
+    element.style.fontFamily = "monospace";
+    element.style.padding = "20px";
+    element.textContent = lastEmail;
+
+    const opt = {
+        margin: 10,
+        filename: "Generated_Email.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</body>
+</html>
